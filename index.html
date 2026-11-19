@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Isa &amp; Levi · Little San Francisco</title>
+  <meta name="description" content="A cozy 8-bit San Francisco made with love.">
+  <meta name="theme-color" content="#b48ae0">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 6' shape-rendering='crispEdges'><path fill='%23ff6f9f' d='M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- the pixel city -->
+  <main id="stage" aria-label="A pixel-art San Francisco scene. Click the landmarks to explore.">
+    <canvas id="scene" width="320" height="180"></canvas>
+  </main>
+  <div id="tip" role="tooltip"></div>
+
+  <!-- top bar -->
+  <header class="hud hud-top">
+    <div class="title-box pixel-box">
+      <h1 id="site-title">Our Little San Francisco</h1>
+      <p id="together-line">♥</p>
+    </div>
+    <div class="hud-right">
+      <button id="timer-pill" class="pill pixel-box hidden" title="Study timer">🍅 25:00</button>
+      <button id="now-playing" class="pill pixel-box" title="Music">
+        <span class="np-icon">♪</span><span id="np-title">Music off</span>
+      </button>
+      <button id="phase-btn" class="pill pixel-box" title="Change the sky">
+        <img id="phase-icon" class="pix" alt=""><span id="phase-label">Auto</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- bottom dock -->
+  <nav id="dock" class="hud pixel-box" aria-label="Places"></nav>
+  <button id="dock-toggle" class="pill pixel-box" title="Hide / show menu" aria-label="Hide or show menu">▾</button>
+
+  <!-- modal window -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="window pixel-box" role="dialog" aria-modal="true" aria-labelledby="win-title">
+      <div class="win-bar">
+        <img id="win-icon" class="pix" alt="">
+        <h2 id="win-title">Window</h2>
+        <button id="win-close" class="win-close" aria-label="Close">✕</button>
+      </div>
+      <div id="win-body" class="win-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast pixel-box" role="status" aria-live="polite"></div>
+
+  <!-- welcome screen -->
+  <div id="welcome" class="welcome">
+    <div class="welcome-card">
+      <p class="tiny blink-slow">✦ ✧ ✦</p>
+      <h1 id="welcome-title">Our Little San Francisco</h1>
+      <canvas id="welcome-couple" aria-label="Pixel art of the two of us"></canvas>
+      <p id="welcome-name" class="welcome-name"></p>
+      <p id="welcome-msg" class="welcome-msg"></p>
+      <button id="start-btn" class="btn big">♥ PRESS START ♥</button>
+      <p class="tiny muted">tip: click the sparkles around the city</p>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/games.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
