@@ -13,7 +13,7 @@ Click the sparkles in the city, or use the menu:
 | 🌉 Golden Gate Bridge | Our quotes (save favorites ♥) |
 | 🏠 Painted Ladies | Memories timeline (with photos) |
 | 🚋 Cable car | Study timer (pomodoro, tomatoes, rain/waves/café sounds) |
-| 📡 Sutro Tower | Music radio (your mp3s + built-in chiptunes) |
+| 📡 Sutro Tower | Music radio: 14 original 8-bit songs in Isa's favorite styles, plus your own mp3s |
 | 🏙 Downtown | "Open when…" letters |
 | ☁ Karl the Fog | Guided breathing (box, 4·7·8, easy) |
 | 🗼 Coit Tower | Days-together counter & anniversary countdown |
@@ -21,6 +21,10 @@ Click the sparkles in the city, or use the menu:
 | ✦ Stars (at night) | Make a wish. It becomes a pink star in the sky forever |
 | 🍾 Bottle in the bay | A new love note every day |
 | 👫 The two of you | A random "reason I love you" (click 7× fast for a secret 🎆) |
+
+| 🎹 Piano (menu) | A playable 2-octave 8-bit piano with 5 sounds + **Follow the lights** to learn our songs |
+
+On **Nov 13** there are fireworks and "November 13th" plays; on every 13th there's a monthiversary surprise.
 
 Keyboard: `1`–`9` open menu items, `Esc` closes, `Space` starts/pauses the timer.
 
@@ -44,3 +48,22 @@ Add songs to `music/` and photos to `photos/` (each folder has a README).
 To preview locally: `python3 -m http.server` in this folder, then open http://localhost:8000.
 
 Saved stuff (wishes, game progress, favorites, timer settings) lives in her browser's local storage, so it stays on the device she uses.
+
+## The 8-bit songbook (all original, generated live in the browser)
+
+| Song | Style |
+|---|---|
+| November 13th | piano ballad, for the Elton John fan (our song) |
+| Mon Cœur, Ma Chérie | swing ballad, Nat King Cole style |
+| Velvet Objection | retro soul, Amy Winehouse vibes |
+| Whistle Note for Isa | 90s R&B ballad, Mariah mode (with whistle-note runs) |
+| Golden Hour, Tucson | afrobeats, Burna Boy feels |
+| Sunny Riddim | dancehall, Popcaan & Kes energy |
+| Late Night Library | late-night R&B with 808s, Brent & Summer moods |
+| Saguaro Sunshine | sunny indie, Rex Orange County & Steve Lacy style |
+| Bear Down Boogie | funk & disco, Bruno Mars & the Jacksons |
+| Valse pour Isa | French musette waltz |
+| Cumbia de Sacramento | cumbia, from Sacramento with love |
+| Torts & Tea | lo-fi for case briefs |
+| Fog City Study Beat | lo-fi study |
+| Bay Lullaby | lullaby |

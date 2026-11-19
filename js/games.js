@@ -18,7 +18,7 @@
   const $$ = (s, r) => Array.from(r.querySelectorAll(s));
   function shuffle(arr, r) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 
-  /* ---------------- word list (~400 cozy words) ---------------- */
+  /* ---------------- word list (~420 cozy words: law, French, piano, desert & sports included) ---------------- */
   const WORDS = shuffle([...new Set(`
     heart smile bloom beach ocean waves cloud foggy sunny light dream sweet honey peach berry lemon mango olive bread toast
     latte mocha cocoa candy sugar spice maple cedar grass field river shore coast coral pearl shell sandy tides tower cable
@@ -40,7 +40,7 @@
     torch glows blaze smoky baker whisk spoon forks knife plate bowls flour yeast herbs basil thyme chive onion leeks beans
     wheat grain seeds nutty rhyme clues guess solve match score prize medal champ gamer cling share carry holds treat spoil
     honor value cared giver sleep dozes snore yawns rests tired awake lucid eased balmy buddy mates chums guest hosts visit
-    greet hello howdy adieu`.trim().split(/\s+/).filter((w) => /^[a-z]{5}$/.test(w)))], rng(2025));
+    greet hello howdy adieu court spike dunks miles relay torts brief judge legal sworn juror merci bisou paris croon vocal divas jazzy chord cacti mesas adobe desert`.trim().split(/\s+/).filter((w) => /^[a-z]{5}$/.test(w)))], rng(2025));
   const answerFor = (i) => WORDS[((i % WORDS.length) + WORDS.length) % WORDS.length].toUpperCase();
 
   /* ---------------- shared bits ---------------- */

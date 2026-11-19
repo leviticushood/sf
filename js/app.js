@@ -32,6 +32,7 @@
     dawn: ['.........', '.........', '.........', '..KKKKK..', '.KYYYYYK.', 'KYYYYYYYK', 'KKKKKKKKK', '.B.B.B.B.', 'B.B.B.B.B'],
     auto: ['..KKKKK..', '.KYYKWWK.', 'KYYYKWWWK', 'KYYYKWWWK', 'KYYYKWKWK', 'KYYYKWWWK', '.KYYKWWK.', '..KKKKK..', '.........'],
     games: ['.........', '..KKKKK..', '.KLLLLLK.', 'KLWLLLPLK', 'KWWWLPLPK', 'KLWLLLPLK', 'KLLKKKLLK', '.KK...KK.', '.........'],
+    piano: ['.........', 'KKKKKKKKK', 'KWKKWKKWK', 'KWKKWKKWK', 'KWWKWWKWK', 'KWWKWWKWK', 'KPPPPPPPK', 'KKKKKKKKK', '.........'],
     heart: ['.KK...KK.', 'KPPK.KPPK', 'KPWPKPPPK', 'KPPPPPPPK', 'KPPPPPPPK', '.KPPPPPK.', '..KPPPK..', '...KPK...', '....K....'],
   };
   const iconCache = {};
@@ -93,7 +94,7 @@
      ================================================================= */
   const player = (() => {
     const tracks = list('playlist').map((t) => ({ ...t, kind: 'file' }));
-    if (C.includeBuiltInSongs !== false || !tracks.length) A.songs.forEach((s) => tracks.push({ title: s.title, artist: 'built-in chiptune', builtin: s.id, study: s.study }));
+    if (C.includeBuiltInSongs !== false || !tracks.length) A.songs.forEach((s) => tracks.push({ title: s.title, artist: s.vibe, builtin: s.id, study: s.study }));
     const el = new Audio(); el.preload = 'none';
     let idx = store.get('trackIdx', 0) % tracks.length, playing = false, loadedIdx = -1, vol = store.get('vol', C.defaultVolume == null ? 0.45 : C.defaultVolume);
     const listeners = [];
@@ -120,9 +121,10 @@
     function toggle() { playing ? pause() : play(); }
     function next() { stopAll(); idx = (idx + 1) % tracks.length; play(); }
     function prev() { stopAll(); idx = (idx - 1 + tracks.length) % tracks.length; play(); }
-    function playStudy() { const i = tracks.findIndex((t) => t.study); play(i >= 0 ? i : idx); }
+    function playStudy() { const st = tracks.map((t, i) => (t.study ? i : -1)).filter((i) => i >= 0); play(st.length ? st[Math.floor(Math.random() * st.length)] : idx); }
+    function playById(id) { const i = tracks.findIndex((t) => t.builtin === id); if (i >= 0) play(i); }
     return {
-      tracks, play, pause, toggle, next, prev, playStudy,
+      tracks, play, pause, toggle, next, prev, playStudy, playById,
       get idx() { return idx; }, get playing() { return playing; }, get vol() { return vol; },
       setVol(v) { vol = v; store.set('vol', v); applyVol(); },
       on(f) { listeners.push(f); return () => listeners.splice(listeners.indexOf(f), 1); },
@@ -509,6 +511,70 @@
     },
   };
 
+  /* ---- Our piano (we both play!) ---- */
+  PANELS.piano = {
+    title: 'Our Piano', icon: 'piano', label: 'Piano',
+    render(el) {
+      const KEYS = 'zsxdcvgbhnjmq2w3er5t6y7u'; // two octaves, C4 to B5
+      const BLACK = [1, 3, 6, 8, 10], LOW = 60, HIGH = 83;
+      const SOUNDS = [['piano', '8-bit piano'], ['rhodes', 'Electric piano'], ['musicbox', 'Music box'], ['accordion', 'Accordion'], ['square', 'Retro lead']];
+      let sound = store.get('pianoSound', 'piano'), songId = store.get('pianoSong', C.anniversarySong || 'nov13');
+      let guide = null, gi = 0, demoT = [];
+      const whites = []; for (let m = LOW; m <= HIGH; m++) if (!BLACK.includes(m % 12)) whites.push(m);
+      el.innerHTML = `
+        <p class="muted">Play with your mouse, your fingers, or your computer keyboard (the letters on the keys). Then try <b>Follow the lights</b> to learn one of our songs.</p>
+        <div class="row"><label>Sound <select id="pi-sound">${SOUNDS.map(([k, l]) => `<option value="${k}" ${k === sound ? 'selected' : ''}>${l}</option>`).join('')}</select></label></div>
+        <div class="piano" id="piano">${whites.map((m) => `<div class="wk" data-m="${m}"><span>${KEYS[m - LOW].toUpperCase()}</span>${BLACK.includes((m + 1) % 12) && m + 1 <= HIGH ? `<div class="bk" data-m="${m + 1}"><span>${KEYS[m + 1 - LOW].toUpperCase()}</span></div>` : ''}</div>`).join('')}</div>
+        <p class="section-title">FOLLOW THE LIGHTS</p>
+        <div class="row"><select id="pi-song">${A.songs.map((x) => `<option value="${x.id}" ${x.id === songId ? 'selected' : ''}>${esc(x.title)}</option>`).join('')}</select>
+          <button class="btn" data-a="learn">✦ Start</button><button class="btn alt2" data-a="demo">▶ Listen</button><button class="btn ghost" data-a="stop">Stop</button></div>
+        <p class="pi-status muted"></p>`;
+      const piano = $('#piano', el), status = $('.pi-status', el);
+      const keyEl = (m) => piano.querySelector(`[data-m="${m}"]`);
+      function flash(m, cls = 'down') { const k = keyEl(m); if (!k) return; k.classList.add(cls); setTimeout(() => k.classList.remove(cls), 180); }
+      function fit(n) { while (n < LOW) n += 12; while (n > HIGH) n -= 12; return n; }
+      function showNext() {
+        $$('.next', piano).forEach((k) => k.classList.remove('next'));
+        if (!guide) { status.textContent = ''; return; }
+        if (gi >= guide.length) {
+          status.innerHTML = '<b>You played it! ♥</b> I knew you would.'; A.sfx.chime(); Scene.burstAt('couple');
+          guide = null; return;
+        }
+        keyEl(guide[gi]).classList.add('next');
+        status.textContent = `note ${gi + 1} of ${guide.length}: press the glowing key`;
+      }
+      function play(m) {
+        A.playNote(m, sound); flash(m);
+        if (guide) { if (m === guide[gi]) { gi++; showNext(); } else flash(m, 'wrong'); }
+      }
+      function stopDemo() { demoT.forEach(clearTimeout); demoT = []; }
+      let down = false;
+      piano.addEventListener('pointerdown', (e) => { const k = e.target.closest('[data-m]'); if (!k) return; e.preventDefault(); down = true; play(+k.dataset.m); });
+      piano.addEventListener('pointerover', (e) => { if (!down || e.pointerType === 'touch') return; const k = e.target.closest('[data-m]'); if (k) play(+k.dataset.m); });
+      const up = () => { down = false; }; window.addEventListener('pointerup', up);
+      const onKey = (e) => {
+        if (e.repeat || e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+        const i = KEYS.indexOf(e.key.toLowerCase()); if (i < 0) return;
+        e.preventDefault(); play(LOW + i);
+      };
+      document.addEventListener('keydown', onKey);
+      $('#pi-sound', el).addEventListener('change', (e) => { sound = e.target.value; store.set('pianoSound', sound); A.playNote(72, sound); });
+      $('#pi-song', el).addEventListener('change', (e) => { songId = e.target.value; store.set('pianoSong', songId); });
+      el.addEventListener('click', (e) => {
+        const a = e.target.closest('[data-a]'); if (!a) return;
+        stopDemo();
+        if (a.dataset.a === 'learn') { if (player.playing) player.pause(); guide = A.getMelody(songId).slice(0, 32).map(fit); gi = 0; showNext(); }
+        if (a.dataset.a === 'stop') { guide = null; showNext(); }
+        if (a.dataset.a === 'demo') {
+          if (player.playing) player.pause();
+          const mel = A.getMelody(songId).slice(0, 32).map(fit);
+          mel.forEach((m, i) => demoT.push(setTimeout(() => { A.playNote(m, sound); flash(m, 'next'); }, i * 330)));
+        }
+      });
+      return () => { stopDemo(); document.removeEventListener('keydown', onKey); window.removeEventListener('pointerup', up); };
+    },
+  };
+
   /* ---- Sailboat: daily games ---- */
   PANELS.games = {
     title: 'Daily Bay Games', icon: 'games', label: 'Games',
@@ -532,7 +598,7 @@
   /* =================================================================
      DOCK, SKY BUTTON, REASONS, SECRET
      ================================================================= */
-  const DOCK = ['games', 'quotes', 'memories', 'study', 'music', 'letters', 'breathe', 'us', 'wish', 'note'];
+  const DOCK = ['games', 'piano', 'quotes', 'memories', 'study', 'music', 'letters', 'breathe', 'us', 'wish', 'note'];
   $('#dock').innerHTML = DOCK.map((id, i) => `<button class="dock-btn" data-open="${id}" title="${PANELS[id].title} (${i + 1})"><img class="pix" src="${icon(PANELS[id].icon)}" alt=""><span>${PANELS[id].label}</span></button>`).join('');
   $('#dock').addEventListener('click', (e) => { const b = e.target.closest('[data-open]'); if (b) openPanel(b.dataset.open); });
   let tucked = store.get('tucked', false);
@@ -617,8 +683,18 @@
     const amb = store.get('amb', { waves: true });
     Object.entries(amb).forEach(([k, on]) => on && A.setAmbient(k, true));
     const h = new Date().getHours();
-    const greet = h < 5 ? 'Up late? The stars kept you company ✦' : h < 12 ? 'Good morning, sunshine ☀' : h < 17 ? 'Good afternoon, love ♥' : h < 21 ? 'Good evening, beautiful 🌅' : 'Goodnight soon, my love 🌙';
-    setTimeout(() => toast(greet), 900);
+    const G = C.greetings || {};
+    const greet = h < 5 ? G.late || 'Up late? The stars kept you company ✦' : h < 12 ? G.morning || 'Good morning ☀' : h < 17 ? G.afternoon || 'Good afternoon ♥' : h < 21 ? G.evening || 'Good evening 🌅' : G.night || 'Goodnight soon 🌙';
+    // anniversary & monthiversary surprises (on the same day-of-month as startDate)
+    const now = new Date(), months = (now.getFullYear() - START.getFullYear()) * 12 + now.getMonth() - START.getMonth();
+    if (now.getDate() === START.getDate() && months > 0) {
+      const yearly = months % 12 === 0;
+      setTimeout(() => {
+        Scene.fireworks(yearly ? 12 : 5);
+        toast(yearly ? `Happy ${months / 12}-year anniversary, ${C.herName || 'love'}! Joyeux anniversaire, mon amour ♥` : `Happy ${months}-month-iversary ♥ ${months} months of us!`, 9000);
+        if (yearly) player.playById(C.anniversarySong || 'nov13');
+      }, 1200);
+    } else setTimeout(() => toast(greet), 900);
     setTimeout(centerStage, 50);
   });
 })();
